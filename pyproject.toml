@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=67", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "compse3"
+version = "0.1.0"
+description = "A python tool for constructing composite junctions in SE(3)."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.22",
+    "scipy>=1.9",
+]
+
+[project.optional-dependencies]
+numba = ["numba>=0.57"]
+
+[tool.setuptools.packages.find]
+# find_namespace_packages: picks up compse3 (regular) as well as the
+# namespace packages compse3.SO3 and compse3.SO3.so3.pyConDec that wrap
+# the bundled SO3 / pyConDec submodules (which have no __init__.py of their
+# own at the top level of each submodule directory).
+where     = ["."]
+namespaces = true
