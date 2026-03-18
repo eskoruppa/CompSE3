@@ -421,9 +421,9 @@ class SE3CompositeTransform:
 
         if len(self.composites) == 0:
             if mode == 'explicit' or mode == 'solve':
-                return self._unconstraind_free_energy(stiffmat)
+                return self._unconstrained_free_energy(stiffmat)
             elif mode == 'optimized':
-                return self._unconstraind_free_energy_optimized(stiffmat)
+                return self._unconstrained_free_energy_optimized(stiffmat)
             else:
                 raise ValueError(f"Invalid mode: {mode}. Must be in {', '.join(VALID_MODES)}.")
         
@@ -440,7 +440,7 @@ class SE3CompositeTransform:
     #  free energy computation for unconstrained system (reference state)
     # ============================================================================================#  
 
-    def _unconstraind_free_energy(self, stiffmat: np.ndarray) -> float:
+    def _unconstrained_free_energy(self, stiffmat: np.ndarray) -> float:
         """Compute the free energy of the unconstrained system for reference."""
         _, ff_logdet = np.linalg.slogdet(stiffmat)
         ff_pi = -0.5*len(stiffmat) * np.log(2*np.pi)
@@ -457,7 +457,7 @@ class SE3CompositeTransform:
         return Fdict
 
 
-    def _unconstraind_free_energy_optimized(self, stiffmat: np.ndarray | csr_matrix) -> dict:
+    def _unconstrained_free_energy_optimized(self, stiffmat: np.ndarray | csr_matrix) -> dict:
         """Compute the free energy of the unconstrained system using optimized log-det.
 
         Mirrors the bandwidth-detection and Cholesky strategy of
