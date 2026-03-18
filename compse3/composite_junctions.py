@@ -99,12 +99,41 @@ class JunctionTopology(Enum):
             '-lh': JunctionTopology.LH_BWD,
             '+rh': JunctionTopology.RH_FWD,
             '-rh': JunctionTopology.RH_BWD,
+            '+full': JunctionTopology.FULL_FWD,
+            '-full': JunctionTopology.FULL_BWD,
+            '+left_half': JunctionTopology.LH_FWD,
+            '-left_half': JunctionTopology.LH_BWD,
+            '+right_half': JunctionTopology.RH_FWD,
+            '-right_half': JunctionTopology.RH_BWD,
         }
         if topo_str not in mapping:
             raise ValueError(f"Unknown topology string: '{topo_str}'. "
                            f"Valid values: {list(mapping.keys())}")
         return mapping[topo_str]
     
+    @staticmethod
+    def from_string_type_and_direction(type_str: str, dir: int | str) -> 'JunctionTopology':
+        """Construct JunctionTopology from step type and traversal direction."""
+        if isinstance(dir, str):
+            dir = int(dir)
+        if type_str in ['g', 'full']:
+            if dir == 1:
+                return JunctionTopology.FULL_FWD
+            elif dir == -1:
+                return JunctionTopology.FULL_BWD
+        elif type_str in ['lh', 'left_half']:
+            if dir == 1:
+                return JunctionTopology.LH_FWD
+            elif dir == -1:
+                return JunctionTopology.LH_BWD
+        elif type_str in ['rh', 'right_half']:
+            if dir == 1:
+                return JunctionTopology.RH_FWD
+            elif dir == -1:
+                return JunctionTopology.RH_BWD
+        raise ValueError(f"Invalid type_str '{type_str}' or dir '{dir}'. "                         
+                         f"Expected type_str in ['g', 'full', 'lh', 'left_half', 'rh', 'right_half'] and dir in [1, -1].")
+
     def to_string(self) -> str:
         """Convert to legacy string format for backward compatibility.
         
