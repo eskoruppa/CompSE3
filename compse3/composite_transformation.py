@@ -569,6 +569,14 @@ class SE3CompositeTransform:
         if correction:
 
             for i in range(10):
+
+                # Step 8: Compute free energy components
+                F_const_C =  0.5 * C.T @ M_C @ C
+                F_const_b = -0.5 * b.T @ M_R_inv @ b
+
+                Eenth = F_const_C + F_const_b
+                print(f'Enthalpy: {Eenth:.4f} kT')
+
                 print(f"Correction iteration {i+1}")
                 # Step 3: First-order ground state calculation
                 M_R_inv = np.linalg.inv(M_R)
@@ -610,6 +618,7 @@ class SE3CompositeTransform:
                 # Step 6: Update excess coordinates and coupling vector
                 C = C - P
                 b = M_RC.T @ C
+
 
         # Step 7: Final ground state calculation
         M_R_inv = np.linalg.inv(M_R)
