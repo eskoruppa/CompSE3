@@ -652,7 +652,7 @@ class SE3CompositeJunction:
 
             A = np.zeros((6,6), dtype=np.float64)
             A[:3,:3] = Saccu_c.T @ list_Jr[l]
-            A[3:,3:] = Saccu_c.T @ list_dsecs[l].T
+            A[3:,3:] = Saccu_c.T @ list_dsecs[l,:3,:3].T
             A[3:,:3] = -Saccu_c.T @ hatsaccu_c @ list_Jr[l]
             
             # dynamic_conversions takes care of converting the full forward-sense junctions into the correct half/full step and forward/backward sense
