@@ -223,8 +223,9 @@ class SE3CompositeTransform:
             row_end    = row_start + self.DIM_PER_JUNCTION
 
             if self.iterative:
-                composite_transforms, constant_vector = comp.build_transforms_iterative_correction(
+                composite_transforms, constant_vector, self.corr_excess = comp.build_transforms_iterative_correction(
                     excess_dynamic_coordinates[comp.junction_ids])
+
             else:
                 composite_transforms, constant_vector = comp.build_corrected_transforms(
                     excess_dynamic_coordinates[comp.junction_ids])
@@ -573,6 +574,7 @@ class SE3CompositeTransform:
 
             # Step 4: Compute corrected transformation
             A, P = self.corrected_transformation_matrix(gs_fo)
+            C = self.self.corr_excess
 
             # Step 5: Recompute with corrected transformation
             A_inv = np.linalg.inv(A)
@@ -1125,7 +1127,7 @@ class SE3CompositeTransform:
 
             if corrected:
                 if self.iterative:
-                    transforms, constant = comp.build_transforms_iterative_correction(
+                    transforms, constant, corr_excess = comp.build_transforms_iterative_correction(
                         excess_dynamic_coordinates[comp.junction_ids])
                 else:
                     transforms, constant = comp.build_corrected_transforms(

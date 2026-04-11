@@ -658,8 +658,11 @@ class SE3CompositeJunction:
             # dynamic_conversions takes care of converting the full forward-sense junctions into the correct half/full step and forward/backward sense
             transforms[l] @= A @ self.dynamic_conversions[l]
 
-            const_vec[:3] = A[:3,:3] @ list_Phidc[l]
-            const_vec[3:] = A[3:,:3] @ list_Phidc[l]
+            const_vec[:3] -= A[:3,:3] @ list_Phidc[l]
+            const_vec[3:] -= A[3:,:3] @ list_Phidc[l]
             
-        return transforms, const_vec
+
+        corrected_excess_coordinates = so3.se3_inverse(self.list_accu_static_comp[0]) @ so3.se3_inverse(self.pose1) @ self.pose2 @ so3.se3_inverse(self.tail_static_junction)
+
+        return transforms, const_vec, corrected_excess_coordinates
     
