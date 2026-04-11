@@ -587,6 +587,7 @@ class SE3CompositeTransform:
                 gs_fo = A_inv @ xi_dynamic_excess_fo
 
                 # Step 4: Compute corrected transformation
+                self._corrected_transformation_matrix = None
                 A, P = self.corrected_transformation_matrix(gs_fo)
                 if self.iterative:
                     C = self.corr_excess.flatten()
