@@ -662,7 +662,7 @@ class SE3CompositeJunction:
             const_vec[3:] -= A[3:,:3] @ list_Phidc[l]
             
 
-        corrected_excess_coordinates = so3.se3_inverse(list_accu_static_comp[0]) @ so3.se3_inverse(self.pose1) @ self.pose2 @ so3.se3_inverse(self.tail_static_junction)
+        corrected_excess_coordinates = g2X(so3.se3_inverse(list_accu_static_comp[0]) @ so3.se3_inverse(self.pose1) @ self.pose2 @ so3.se3_inverse(self.tail_static_junction))
 
         return transforms, const_vec, corrected_excess_coordinates
     

@@ -218,12 +218,15 @@ class SE3CompositeTransform:
         if self.composite_order == COMP_TRANSFORM_BACK:
             shift_const_id = len(self.retained_ids) * self.DIM_PER_JUNCTION
 
-        for comp in self.composites:
+        if self.iterative:
+            self.corr_excess = np.zeros((len(self.composites), self.DIM_PER_JUNCTION), dtype=np.float64)
+        # for comp in self.composites:
+        for i,comp in enumerate(self.composites):
             row_start  = old_to_new[comp.replaced_id] * self.DIM_PER_JUNCTION
             row_end    = row_start + self.DIM_PER_JUNCTION
 
             if self.iterative:
-                composite_transforms, constant_vector, self.corr_excess = comp.build_transforms_iterative_correction(
+                composite_transforms, constant_vector, self.corr_excess[i] = comp.build_transforms_iterative_correction(
                     excess_dynamic_coordinates[comp.junction_ids])
 
             else:
@@ -575,7 +578,7 @@ class SE3CompositeTransform:
             # Step 4: Compute corrected transformation
             A, P = self.corrected_transformation_matrix(gs_fo)
             if self.iterative:
-                C = self.corr_excess
+                C = self.corr_excess.flatten()
 
             # Step 5: Recompute with corrected transformation
             A_inv = np.linalg.inv(A)
