@@ -41,6 +41,7 @@ class SE3CompositeTransform:
         static_junctions: np.ndarray,
         composite_order: str = 'last',
         supress_warnings: bool = False,
+        iterative: bool = False
         ):
         """Initialize the transformation matrix builder.
         
@@ -55,6 +56,7 @@ class SE3CompositeTransform:
         self.composites = []
         self.composite_order = self._normalize_composite_order(composite_order)
         self.supress_warnings = supress_warnings
+        self.iterative = iterative
 
         self._reset_ptrs()
     
@@ -220,7 +222,14 @@ class SE3CompositeTransform:
             row_start  = old_to_new[comp.replaced_id] * self.DIM_PER_JUNCTION
             row_end    = row_start + self.DIM_PER_JUNCTION
 
-            composite_transforms, constant_vector = comp.build_corrected_transforms(excess_dynamic_coordinates[comp.junction_ids])
+            if self.iterative:
+                composite_transforms, constant_vector = comp.build_transforms_iterative_correction(
+                    excess_dynamic_coordinates[comp.junction_ids])
+            else:
+                composite_transforms, constant_vector = comp.build_corrected_transforms(
+                    excess_dynamic_coordinates[comp.junction_ids])
+
+            # composite_transforms, constant_vector = comp.build_corrected_transforms(excess_dynamic_coordinates[comp.junction_ids])
             const[row_start-shift_const_id:row_end-shift_const_id] = constant_vector
 
             for junc_idx, junc_id in enumerate(comp.junction_ids):
@@ -1115,8 +1124,12 @@ class SE3CompositeTransform:
             row_e = row_s + DIM
 
             if corrected:
-                transforms, constant = comp.build_corrected_transforms(
-                    excess_dynamic_coordinates[comp.junction_ids])
+                if self.iterative:
+                    transforms, constant = comp.build_transforms_iterative_correction(
+                        excess_dynamic_coordinates[comp.junction_ids])
+                else:
+                    transforms, constant = comp.build_corrected_transforms(
+                        excess_dynamic_coordinates[comp.junction_ids])
                 P[row_s:row_e] = constant
             else:
                 transforms = comp.build_transforms()
