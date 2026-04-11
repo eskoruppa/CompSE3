@@ -567,36 +567,38 @@ class SE3CompositeTransform:
         b = M_RC.T @ C
         
         if correction:
-            # Step 3: First-order ground state calculation
-            M_R_inv = np.linalg.inv(M_R)
-            alpha_fo = -M_R_inv @ b
 
-            xi_dynamic_excess_fo = np.concatenate((alpha_fo, C))
-            # A_inv = np.linalg.inv(A)
-            gs_fo = A_inv @ xi_dynamic_excess_fo
+            for i in range(5):
+                # Step 3: First-order ground state calculation
+                M_R_inv = np.linalg.inv(M_R)
+                alpha_fo = -M_R_inv @ b
 
-            # Step 4: Compute corrected transformation
-            A, P = self.corrected_transformation_matrix(gs_fo)
-            if self.iterative:
-                C = self.corr_excess.flatten()
+                xi_dynamic_excess_fo = np.concatenate((alpha_fo, C))
+                # A_inv = np.linalg.inv(A)
+                gs_fo = A_inv @ xi_dynamic_excess_fo
 
-            # Step 5: Recompute with corrected transformation
-            A_inv = np.linalg.inv(A)
-            MXi = A_inv.T @ stiffmat @ A_inv
+                # Step 4: Compute corrected transformation
+                A, P = self.corrected_transformation_matrix(gs_fo)
+                if self.iterative:
+                    C = self.corr_excess.flatten()
 
-            if self.composite_order == COMP_TRANSFORM_FRONT:
-                raise ValueError(f"Not implemented for order '{self.composite_order}'")
+                # Step 5: Recompute with corrected transformation
+                A_inv = np.linalg.inv(A)
+                MXi = A_inv.T @ stiffmat @ A_inv
 
-            elif self.composite_order == COMP_TRANSFORM_BACK:
-                M_R  = MXi[:N_R,:N_R]
-                M_C  = MXi[N_R:,N_R:]
-                M_RC = MXi[N_R:,:N_R]
-            else:
-                raise ValueError(f"Not implemented for order '{self.composite_order}'")
+                if self.composite_order == COMP_TRANSFORM_FRONT:
+                    raise ValueError(f"Not implemented for order '{self.composite_order}'")
 
-            # Step 6: Update excess coordinates and coupling vector
-            C = C - P
-            b = M_RC.T @ C
+                elif self.composite_order == COMP_TRANSFORM_BACK:
+                    M_R  = MXi[:N_R,:N_R]
+                    M_C  = MXi[N_R:,N_R:]
+                    M_RC = MXi[N_R:,:N_R]
+                else:
+                    raise ValueError(f"Not implemented for order '{self.composite_order}'")
+
+                # Step 6: Update excess coordinates and coupling vector
+                C = C - P
+                b = M_RC.T @ C
 
         # Step 7: Final ground state calculation
         M_R_inv = np.linalg.inv(M_R)
