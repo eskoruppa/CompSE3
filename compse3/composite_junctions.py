@@ -628,9 +628,9 @@ class SE3CompositeJunction:
         list_Jr    = np.zeros((len(self.X0), 3, 3), dtype=np.float64)
         list_Phidc = excess_dynamic_coordinates[:,:3]
         for l in range(len(self.X0)):
-            rot_Ydc       = np.zeros(6, dtype=np.float64)
-            rot_Ydc[:3]   = list_Phidc[l]
-            list_dsecs[l] = so3.X2g(rot_Ydc)
+            # rot_Ydc       = np.zeros(6, dtype=np.float64)
+            # rot_Ydc[:3]   = list_Phidc[l]
+            list_dsecs[l] = so3.X2g(excess_dynamic_coordinates[l])
             list_ssecs[l] = self.static_junctions[l] @ list_dsecs[l]
             list_Jr[l]    = so3.right_jacobian(list_Phidc[l])
 
@@ -659,10 +659,74 @@ class SE3CompositeJunction:
             transforms[l] @= A @ self.dynamic_conversions[l]
 
             const_vec[:3] -= A[:3,:3] @ list_Phidc[l]
-            const_vec[3:] -= A[3:,:3] @ list_Phidc[l]
+            const_vec[3:] -= A[3:,:3] @ list_Phidc[l] + A[3:,3:] @ excess_dynamic_coordinates[l,3:]
             
-
-        corrected_excess_coordinates = g2X(so3.se3_inverse(list_accu_static_comp[0]) @ so3.se3_inverse(self.pose1) @ self.pose2 @ so3.se3_inverse(self.tail_static_junction))
+        corrected_excess_coordinates = so3.g2X(so3.se3_inverse(list_accu_static_comp[0]) @ so3.se3_inverse(self.pose1) @ self.pose2 @ so3.se3_inverse(self.tail_static_junction))
 
         return transforms, const_vec, corrected_excess_coordinates
+    
+
+
+    # def build_transforms_iterative_correction(self, full_excess_dynamic_coordinates: np.ndarray) -> np.ndarray:
+    #     """Build the full set of transforms for this composite."""
+        
+    #     if len(full_excess_dynamic_coordinates) != len(self.X0):
+    #         raise ValueError(
+    #             f"Length of full_excess_dynamic_coordinates ({len(full_excess_dynamic_coordinates)}) must match "
+    #             f"number of junctions ({len(self.X0)})."
+    #         )
+        
+    #     n = len(full_excess_dynamic_coordinates)
+    #     # i = 0
+    #     # j = n - 1
+    #     # I3 = np.eye(3, dtype=np.float64)
+        
+    #     # Convert the dynamic junction coordinates using dynamic_conversions
+    #     excess_dynamic_coordinates = np.zeros(full_excess_dynamic_coordinates.shape, dtype=np.float64)
+    #     for l in range(n):
+    #         excess_dynamic_coordinates[l] = self.dynamic_conversions[l] @ full_excess_dynamic_coordinates[l]
+        
+    #     # compute dsec's and ssec's for all i <= l <= j
+    #     list_ssecs = np.zeros((len(self.X0), 4, 4), dtype=np.float64)
+    #     list_dsecs = np.zeros((len(self.X0), 4, 4), dtype=np.float64)
+    #     list_Jr    = np.zeros((len(self.X0), 3, 3), dtype=np.float64)
+    #     list_Phidc = excess_dynamic_coordinates[:,:3]
+    #     for l in range(len(self.X0)):
+    #         rot_Ydc       = np.zeros(6, dtype=np.float64)
+    #         rot_Ydc[:3]   = list_Phidc[l]
+    #         list_dsecs[l] = so3.X2g(rot_Ydc)
+    #         list_ssecs[l] = self.static_junctions[l] @ list_dsecs[l]
+    #         list_Jr[l]    = so3.right_jacobian(list_Phidc[l])
+
+    #     # compute accumulated static transforms for each junction (from l to j)
+    #     list_accu_static_comp = np.zeros((len(self.X0)+1, 4, 4), dtype=np.float64)
+    #     list_accu_static_comp[-1] = np.eye(4, dtype=np.float64)
+    #     for l in range(len(self.X0)-1, -1, -1):
+    #         list_accu_static_comp[l] = list_ssecs[l] @ list_accu_static_comp[l+1]
+
+
+    #     transforms = np.zeros((len(self.X0), 6, 6), dtype=np.float64)
+    #     transforms[:] = np.eye(6, dtype=np.float64)
+
+    #     const_vec = np.zeros(6, dtype=np.float64)
+        
+    #     for l in range(len(self.X0)):
+    #         Saccu_c = list_accu_static_comp[l+1][:3,:3]
+    #         hatsaccu_c = so3.hat_map(list_accu_static_comp[l+1][:3,3])
+
+    #         A = np.zeros((6,6), dtype=np.float64)
+    #         A[:3,:3] = Saccu_c.T @ list_Jr[l]
+    #         A[3:,3:] = Saccu_c.T @ list_dsecs[l,:3,:3].T
+    #         A[3:,:3] = -Saccu_c.T @ hatsaccu_c @ list_Jr[l]
+            
+    #         # dynamic_conversions takes care of converting the full forward-sense junctions into the correct half/full step and forward/backward sense
+    #         transforms[l] @= A @ self.dynamic_conversions[l]
+
+    #         const_vec[:3] -= A[:3,:3] @ list_Phidc[l]
+    #         const_vec[3:] -= A[3:,:3] @ list_Phidc[l]
+            
+
+    #     corrected_excess_coordinates = so3.g2X(so3.se3_inverse(list_accu_static_comp[0]) @ so3.se3_inverse(self.pose1) @ self.pose2 @ so3.se3_inverse(self.tail_static_junction))
+
+    #     return transforms, const_vec, corrected_excess_coordinates
     
