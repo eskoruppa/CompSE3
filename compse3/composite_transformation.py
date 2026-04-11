@@ -568,7 +568,7 @@ class SE3CompositeTransform:
         
         if correction:
 
-            for i in range(5):
+            for i in range(10):
                 # Step 3: First-order ground state calculation
                 M_R_inv = np.linalg.inv(M_R)
                 alpha_fo = -M_R_inv @ b
