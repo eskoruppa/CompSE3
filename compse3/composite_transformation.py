@@ -573,16 +573,14 @@ class SE3CompositeTransform:
                 M_R_inv = np.linalg.inv(M_R)
                 alpha_fo = -M_R_inv @ b
 
-
-                # ------------------- > TEST STEP < ------------------- #
-                xi_dynamic_excess_fo = np.concatenate((alpha_fo, C))
-                # A_inv = np.linalg.inv(A)
-                gs_fo = A_inv @ xi_dynamic_excess_fo
-                A, P = self.corrected_transformation_matrix(gs_fo)
-                if self.iterative:
-                    C = self.corr_excess.flatten()
-                # ------------------- > TEST STEP < ------------------- #
-
+                # # ------------------- > TEST STEP < ------------------- #
+                # xi_dynamic_excess_fo = np.concatenate((alpha_fo, C))
+                # # A_inv = np.linalg.inv(A)
+                # gs_fo = A_inv @ xi_dynamic_excess_fo
+                # A, P = self.corrected_transformation_matrix(gs_fo)
+                # if self.iterative:
+                #     C = self.corr_excess.flatten()
+                # # ------------------- > TEST STEP < ------------------- #
 
                 xi_dynamic_excess_fo = np.concatenate((alpha_fo, C))
                 # A_inv = np.linalg.inv(A)
