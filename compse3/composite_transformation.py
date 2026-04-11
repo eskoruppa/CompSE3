@@ -574,7 +574,8 @@ class SE3CompositeTransform:
 
             # Step 4: Compute corrected transformation
             A, P = self.corrected_transformation_matrix(gs_fo)
-            C = self.self.corr_excess
+            if self.iterative:
+                C = self.self.corr_excess
 
             # Step 5: Recompute with corrected transformation
             A_inv = np.linalg.inv(A)
