@@ -570,12 +570,13 @@ class SE3CompositeTransform:
 
             for i in range(10):
 
-                # Step 8: Compute free energy components
+                # Testing
                 F_const_C =  0.5 * C.T @ M_C @ C
-                F_const_b = -0.5 * b.T @ M_R_inv @ b
-
+                F_const_b = -0.5 * b.T @ np.linalg.inv(M_R) @ b
                 Eenth = F_const_C + F_const_b
                 print(f'Enthalpy: {Eenth:.4f} kT')
+
+
 
                 print(f"Correction iteration {i+1}")
                 # Step 3: First-order ground state calculation
