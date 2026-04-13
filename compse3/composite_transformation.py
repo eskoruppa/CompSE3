@@ -567,8 +567,8 @@ class SE3CompositeTransform:
         b = M_RC.T @ C
         
         if correction:
-
-            for i in range(10):
+            
+            for i in range(5):
 
                 # Testing
                 F_const_C =  0.5 * C.T @ M_C @ C
@@ -576,21 +576,10 @@ class SE3CompositeTransform:
                 Eenth = F_const_C + F_const_b
                 print(f'Enthalpy: {Eenth:.4f} kT')
 
-
-
                 print(f"Correction iteration {i+1}")
                 # Step 3: First-order ground state calculation
                 M_R_inv = np.linalg.inv(M_R)
                 alpha_fo = -M_R_inv @ b
-
-                # # ------------------- > TEST STEP < ------------------- #
-                # xi_dynamic_excess_fo = np.concatenate((alpha_fo, C))
-                # # A_inv = np.linalg.inv(A)
-                # gs_fo = A_inv @ xi_dynamic_excess_fo
-                # A, P = self.corrected_transformation_matrix(gs_fo)
-                # if self.iterative:
-                #     C = self.corr_excess.flatten()
-                # # ------------------- > TEST STEP < ------------------- #
 
                 xi_dynamic_excess_fo = np.concatenate((alpha_fo, C))
                 # A_inv = np.linalg.inv(A)
@@ -619,6 +608,9 @@ class SE3CompositeTransform:
                 # Step 6: Update excess coordinates and coupling vector
                 C = C - P
                 b = M_RC.T @ C
+
+                if not self.iterative:
+                    break
 
 
         # Step 7: Final ground state calculation
